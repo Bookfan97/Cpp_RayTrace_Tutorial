@@ -2,8 +2,8 @@
 #include <cmath>
 #include <limits>
 #include <memory>
-#include "ray.h"
-#include "vec3.h"
+//#include "ray.h"
+//#include "vec3.h"
 
 struct RGB
 {

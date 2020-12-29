@@ -2,7 +2,8 @@
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-
+#include "ray.h"
+#include "vec3.h"
 #include "color.h"
 #include "sphere.h"
 #include "utill.h"
@@ -27,14 +28,25 @@ double hit_sphere(const point3& center, double radius, const ray& r)
 	}
 }
 
-color ray_color(const ray& r, const hittable& world)
+color ray_color(const ray& r, const hittable& world, int depth)
 {
 	hit_record rec;
-	/*auto t = hit_sphere(point3(0, 0, -1), 0.5, r);*/
-	if (world.hit(r, 0, infinity, rec))
+	if (depth <= 0)
 	{
-		//vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1));
-		return 0.5 * (rec.normal + color(1, 1, 1));//color(N.x() + 1, N.y() + 1, N.z() + 1);
+		return color(0, 0, 0);
+	}
+	if (world.hit(r, 0.001, infinity, rec))
+	{
+		//Random Ray Direction
+		//point3 target = rec.p + rec.normal + random_in_unit_sphere();
+
+		//Replacement Diffusion
+		//point3 target = rec.p + rec.normal + random_unit_vector();
+
+		//hemispherical scattering
+		point3 target = rec.p + random_in_hemisphere(rec.normal);
+
+		return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth - 1);
 	}
 	vec3 unit_direction = unit_vector(r.direction());
 	auto t = 0.5 * (unit_direction.y() + 1.0);
@@ -48,6 +60,7 @@ int main()
 	const int image_width = 256;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
 	const int samples_per_pixel = 100;
+	const int max_depth = 50;
 	struct RGB data[image_height][image_width];
 	hittable_list world;
 	world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
@@ -72,8 +85,8 @@ int main()
 				auto u = double(i + random_double()) / (image_width - 1);
 				auto v = double(j + random_double()) / (image_height - 1);
 				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, world);
-			};
+				pixel_color += ray_color(r, world, max_depth);
+			}
 			RGB temp = write_color(std::cout, pixel_color, samples_per_pixel);
 			data[j][i].R = temp.R;
 			data[j][i].G = temp.G;
