@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "material.h"
+#include "memory.h"
 
 double hit_sphere(const point3& center, double radius, const ray& r)
 {
@@ -110,15 +111,17 @@ hittable_list random_scene() {
 	return world;
 }
 
+
+
 int main()
 {
-	stbi_flip_vertically_on_write(true);
 	const auto aspect_ratio = 16.0 / 9.0;
 	const int image_width = 256;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
-	const int samples_per_pixel = 500;
+	const int samples_per_pixel = 100;
 	const int max_depth = 50;
-	struct RGB data[image_height][image_width];
+	RGB* data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
+	int index = 0;
 	auto world = random_scene();
 
 	// Camera
@@ -132,9 +135,10 @@ int main()
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 	for (int j = image_height - 1; j >= 0; --j)
 	{
-		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+		std::cerr << "\rScanlines remaining: " << j << ' ' << '\n'<<std::flush;
 		for (int i = 0; i < image_width; ++i)
 		{
+			//RGB* temp = new RGB;
 			color pixel_color(0, 0, 0);
 			for (int s = 0; s < samples_per_pixel; ++s)
 			{
@@ -143,13 +147,16 @@ int main()
 				ray r = cam.get_ray(u, v);
 				pixel_color += ray_color(r, world, max_depth);
 			}
-			RGB temp = write_color(std::cout, pixel_color, samples_per_pixel);
-			data[j][i].R = temp.R;
-			data[j][i].G = temp.G;
-			data[j][i].B = temp.B;
+			auto temp = write_color(std::cout, pixel_color, samples_per_pixel);
+			data[index].R = temp.R;
+			data[index].G = temp.G;
+			data[index].B = temp.B;
+			index++;
 		}
 	}
-
+	std::cerr << "\nWriting to ratrace.jpg\n";
+	//free(data);
 	stbi_write_jpg("raytrace.jpg", image_width, image_height, sizeof(RGB), data, 100);
+	//deallocate_mem(data, image_width);
 	std::cerr << "\nDone.\n";
 }
