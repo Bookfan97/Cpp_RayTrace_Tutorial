@@ -13,6 +13,7 @@
 
 #include "material.h"
 #include "memory.h"
+#include "moving_sphere.h"
 
 double hit_sphere(const point3& center, double radius, const ray& r)
 {
@@ -77,20 +78,24 @@ hittable_list random_scene() {
 			if ((center - point3(4, 0.2, 0)).length() > 0.9) {
 				shared_ptr<material> sphere_material;
 
-				if (choose_mat < 0.8) {
+				if (choose_mat < 0.8)
+				{
 					// diffuse
 					auto albedo = color::random() * color::random();
 					sphere_material = make_shared<lambertian>(albedo);
-					world.add(make_shared<sphere>(center, 0.2, sphere_material));
+					auto center2 = center + vec3(0, random_double(0, .5), 0);
+					world.add(make_shared<moving_sphere>(center, center2, 0.0, 1.0, 0.2, sphere_material));
 				}
-				else if (choose_mat < 0.95) {
+				else if (choose_mat < 0.95)
+				{
 					// metal
 					auto albedo = color::random(0.5, 1);
 					auto fuzz = random_double(0, 0.5);
 					sphere_material = make_shared<metal>(albedo, fuzz);
 					world.add(make_shared<sphere>(center, 0.2, sphere_material));
 				}
-				else {
+				else
+				{
 					// glass
 					sphere_material = make_shared<dielectric>(1.5);
 					world.add(make_shared<sphere>(center, 0.2, sphere_material));
@@ -113,10 +118,10 @@ hittable_list random_scene() {
 
 int main()
 {
-	const auto aspect_ratio = 3.0 / 2.0;
-	const int image_width = 1200;
+	auto aspect_ratio = 16.0 / 9.0;
+	int image_width = 400;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
-	const int samples_per_pixel = 500;
+	int samples_per_pixel = 100;
 	const int max_depth = 50;
 	RGB* data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
 	int index = 0;
@@ -129,7 +134,7 @@ int main()
 	vec3 vup(0, 1, 0);
 	auto dist_to_focus = 10.0;
 	auto aperture = 0.1;
-	camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+	camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 	for (int j = image_height - 1; j >= 0; --j)
 	{
@@ -152,9 +157,6 @@ int main()
 			index++;
 		}
 	}
-	std::cerr << "\nWriting to ratrace.jpg\n";
-	//free(data);
-	stbi_write_jpg("raytrace.jpg", image_width, image_height, sizeof(RGB), data, 100);
-	//deallocate_mem(data, image_width);
+	stbi_write_jpg("raytrace_02.jpg", image_width, image_height, sizeof(RGB), data, 100);
 	std::cerr << "\nDone.\n";
 }
