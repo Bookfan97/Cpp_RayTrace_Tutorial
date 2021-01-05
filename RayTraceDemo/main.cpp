@@ -111,14 +111,12 @@ hittable_list random_scene() {
 	return world;
 }
 
-
-
 int main()
 {
-	const auto aspect_ratio = 16.0 / 9.0;
-	const int image_width = 256;
+	const auto aspect_ratio = 3.0 / 2.0;
+	const int image_width = 1200;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
-	const int samples_per_pixel = 100;
+	const int samples_per_pixel = 500;
 	const int max_depth = 50;
 	RGB* data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
 	int index = 0;
@@ -135,7 +133,7 @@ int main()
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 	for (int j = image_height - 1; j >= 0; --j)
 	{
-		std::cerr << "\rScanlines remaining: " << j << ' ' << '\n'<<std::flush;
+		std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
 		for (int i = 0; i < image_width; ++i)
 		{
 			//RGB* temp = new RGB;
