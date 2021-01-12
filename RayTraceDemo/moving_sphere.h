@@ -8,7 +8,7 @@ public:
 	moving_sphere() {}
 	moving_sphere(point3 cen0, point3 cen1, double _time0, double _time1, double r, shared_ptr<material> m) : center0(cen0), center1(cen1), time0(_time0), time1(_time1), radius(r), mat_ptr(m) {};
 	virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const override;
-
+	virtual bool bounding_box(double time0, double time1, aabb& output_box) const override;
 	point3 center(double time) const;
 
 public:
@@ -50,4 +50,13 @@ bool moving_sphere::hit(const ray& r, double t_min, double t_max, hit_record& re
 	rec.mat_ptr = mat_ptr;
 	return true;
 }
+
+inline bool moving_sphere::bounding_box(double time0, double time1, aabb& output_box) const
+{
+	aabb box0(center(time0) -vec3(radius, radius, radius), center(time0) + vec3(radius, radius, radius));
+	aabb box1(center(time1) -vec3(radius, radius, radius), center(time1) + vec3(radius, radius, radius));
+	output_box = surrounding_box(box0, box1);
+	return true;
+}
+
 #endif
