@@ -67,8 +67,11 @@ color ray_color(const ray& r, const hittable& world, int depth)
 hittable_list random_scene() {
 	hittable_list world;
 
-	auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-	world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+	world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
+
+	//auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+	//world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -116,8 +119,81 @@ hittable_list random_scene() {
 	return world;
 }
 
+hittable_list two_spheres()
+{
+	hittable_list objects;
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+	objects.add(make_shared<sphere>(point3(0, -10, 0), 10, make_shared<lambertian>(checker)));
+	objects.add(make_shared<sphere>(point3(0, 10, 0), 10, make_shared<lambertian>(checker)));
+	return objects;
+}
+
+//Adapted from https://www.geeksforgeeks.org/how-to-create-a-command-line-progress-bar-in-c-c/
+void loadingBar(int current, int mult)
+{
+	auto temp = (float)current / (float)mult;
+	system("color 0A");
+	char a = 177, b = 219;
+	printf("\n\n\n\n");
+	printf("\n\n\n\n\t\t\t\t\t Loading...\n\n");
+	printf("\t\t\t\t\t");
+
+	//Background loading bar
+	for (int i = 0; i < 24; i++)
+	{
+		printf("%c", a);
+	}
+
+	printf("\r");
+	printf("\t\t\t\t\t");
+
+	//Filled loading bar
+	for (int i = 0; i < temp * 24; i++)
+	{
+		printf("%c", b);
+	}
+	printf("\n\n");
+	printf("\t\t\t\t\t");
+
+	printf("%4.4f %%", temp * 100);
+}
+
+//Clears screens with commands for Windows, Linux, macOS
+void ClearScreen()
+{
+	system("clear");
+	system("cls");
+	std::cout << "\033[2J\033[1;1H";
+}
+
 int main()
 {
+	hittable_list world;
+
+	point3 lookfrom;
+	point3 lookat;
+	auto vfov = 40.0;
+	auto aperture = 0.0;
+
+	switch (0)
+	{
+	case 1:
+		world = random_scene();
+		lookfrom = point3(13, 2, 3);
+		lookat = point3(0, 0, 0);
+		vfov = 20.0;
+		aperture = 0.1;
+		break;
+
+	default:
+	case 2:
+		world = two_spheres();
+		lookfrom = point3(13, 2, 3);
+		lookat = point3(0, 0, 0);
+		vfov = 20.0;
+		break;
+	}
+	
 	auto aspect_ratio = 16.0 / 9.0;
 	int image_width = 400;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -125,20 +201,23 @@ int main()
 	const int max_depth = 50;
 	RGB* data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
 	int index = 0;
-	auto world = random_scene();
+	//auto world = random_scene();
 
 	// Camera
 
-	point3 lookfrom(13, 2, 3);
-	point3 lookat(0, 0, 0);
+	/*point3 lookfrom(13, 2, 3);
+	point3 lookat(0, 0, 0);*/
 	vec3 vup(0, 1, 0);
 	auto dist_to_focus = 10.0;
-	auto aperture = 0.1;
+	//auto aperture = 0.1;
 	camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+	//std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+	int total = image_height - 1;
 	for (int j = image_height - 1; j >= 0; --j)
 	{
-		std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
+		//std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
+		ClearScreen();
+		loadingBar(total - j, total);
 		for (int i = 0; i < image_width; ++i)
 		{
 			//RGB* temp = new RGB;
