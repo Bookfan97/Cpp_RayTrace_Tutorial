@@ -128,6 +128,15 @@ hittable_list two_spheres()
 	return objects;
 }
 
+hittable_list two_perlin_spheres()
+{
+	hittable_list objects;
+	auto pertext = make_shared<noise_texture>(4);
+	objects.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
+	objects.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
+	return objects;
+}
+
 //Adapted from https://www.geeksforgeeks.org/how-to-create-a-command-line-progress-bar-in-c-c/
 void loadingBar(int current, int mult)
 {
@@ -184,16 +193,21 @@ int main()
 		vfov = 20.0;
 		aperture = 0.1;
 		break;
-
-	default:
 	case 2:
 		world = two_spheres();
 		lookfrom = point3(13, 2, 3);
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
+	default:
+	case 3:
+		world = two_perlin_spheres();
+		lookfrom = point3(13, 2, 3);
+		lookat = point3(0, 0, 0);
+		vfov = 20.0;
+		break;
 	}
-	
+
 	auto aspect_ratio = 16.0 / 9.0;
 	int image_width = 400;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -205,13 +219,9 @@ int main()
 
 	// Camera
 
-	/*point3 lookfrom(13, 2, 3);
-	point3 lookat(0, 0, 0);*/
 	vec3 vup(0, 1, 0);
 	auto dist_to_focus = 10.0;
-	//auto aperture = 0.1;
 	camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-	//std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 	int total = image_height - 1;
 	for (int j = image_height - 1; j >= 0; --j)
 	{
