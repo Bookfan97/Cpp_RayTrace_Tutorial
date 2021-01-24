@@ -2,8 +2,22 @@
 #include <cmath>
 #include <limits>
 #include <memory>
-//#include "ray.h"
-//#include "vec3.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
+#ifdef _MSC_VER
+    // Microsoft Visual C++ Compiler
+    #pragma warning (push, 0)
+#endif
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+// Restore warning levels.
+#ifdef _MSC_VER
+    // Microsoft Visual C++ Compiler
+    #pragma warning (pop)
+#endif
 
 struct RGB
 {

@@ -1,7 +1,7 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include "stb_image_write.h"
 #include "ray.h"
 #include "vec3.h"
 #include "color.h"
@@ -137,11 +137,20 @@ hittable_list two_perlin_spheres()
 	return objects;
 }
 
+hittable_list earth()
+{
+    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
+
+    return hittable_list(globe);
+}
+
 //Adapted from https://www.geeksforgeeks.org/how-to-create-a-command-line-progress-bar-in-c-c/
 void loadingBar(int current, int mult)
 {
 	auto temp = (float)current / (float)mult;
-	system("color 0A");
+	//system("color 0A");
 	char a = 177, b = 219;
 	printf("\n\n\n\n");
 	printf("\n\n\n\n\t\t\t\t\t Loading...\n\n");
@@ -199,13 +208,19 @@ int main()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-	default:
 	case 3:
 		world = two_perlin_spheres();
 		lookfrom = point3(13, 2, 3);
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
+        default:
+        case 4:
+            world = earth();
+            lookfrom = point3(13,2,3);
+            lookat = point3(0,0,0);
+            vfov = 20.0;
+            break;
 	}
 
 	auto aspect_ratio = 16.0 / 9.0;
