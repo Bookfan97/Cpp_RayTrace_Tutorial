@@ -11,6 +11,7 @@
 #include "camera.h"
 #include <iostream>
 
+#include "aarect.h"
 #include "material.h"
 #include "memory.h"
 #include "moving_sphere.h"
@@ -32,36 +33,25 @@ double hit_sphere(const point3& center, double radius, const ray& r)
 	}
 }
 
-color ray_color(const ray& r, const hittable& world, int depth)
-{
+color ray_color(const ray& r, const color& background, const hittable& world, int depth) {
 	hit_record rec;
+
+	// If we've exceeded the ray bounce limit, no more light is gathered.
 	if (depth <= 0)
-	{
 		return color(0, 0, 0);
-	}
-	if (world.hit(r, 0.001, infinity, rec))
-	{
-		//Random Ray Direction
-		//point3 target = rec.p + rec.normal + random_in_unit_sphere();
 
-		//Replacement Diffusion
-		//point3 target = rec.p + rec.normal + random_unit_vector();
+	// If the ray hits nothing, return the background color.
+	if (!world.hit(r, 0.001, infinity, rec))
+		return background;
 
-		//hemispherical scattering
-		//point3 target = rec.p + random_in_hemisphere(rec.normal);
+	ray scattered;
+	color attenuation;
+	color emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
 
-		//return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth - 1);
-		ray scattered;
-		color attenuation;
-		if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-		{
-			return attenuation * ray_color(scattered, world, depth - 1);
-		}
-		return color(0, 0, 0);
-	}
-	vec3 unit_direction = unit_vector(r.direction());
-	auto t = 0.5 * (unit_direction.y() + 1.0);
-	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+	if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		return emitted;
+
+	return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
 }
 
 hittable_list random_scene() {
@@ -139,11 +129,41 @@ hittable_list two_perlin_spheres()
 
 hittable_list earth()
 {
-    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
-    auto earth_surface = make_shared<lambertian>(earth_texture);
-    auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
+	auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+	auto earth_surface = make_shared<lambertian>(earth_texture);
+	auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_surface);
 
-    return hittable_list(globe);
+	return hittable_list(globe);
+}
+
+hittable_list simple_light() {
+	hittable_list objects;
+
+	auto pertext = make_shared<noise_texture>(4);
+	objects.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
+	objects.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
+
+	auto difflight = make_shared<diffuse_light>(color(4, 4, 4));
+	objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+
+	return objects;
+}
+
+hittable_list cornell_box()
+{
+	hittable_list objects;
+	auto red = make_shared<lambertian>(color(.65, .05, .05));
+	auto white = make_shared<lambertian>(color(.73, .73, .73));
+	auto green = make_shared<lambertian>(color(.12, .45, .15));
+	auto light = make_shared<diffuse_light>(color(15, 15, 15));
+	objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
+	objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+	objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
+	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+	objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+
+	return objects;
 }
 
 //Adapted from https://www.geeksforgeeks.org/how-to-create-a-command-line-progress-bar-in-c-c/
@@ -192,11 +212,19 @@ int main()
 	point3 lookat;
 	auto vfov = 40.0;
 	auto aperture = 0.0;
+	color background(0, 0, 0);
+	auto aspect_ratio = 16.0 / 9.0;
+	int image_width = 400;
+	const int image_height = static_cast<int>(image_width / aspect_ratio);
+	int samples_per_pixel = 100;
+	const int max_depth = 50;
+	//auto world = random_scene();
 
 	switch (0)
 	{
 	case 1:
 		world = random_scene();
+		background = color(0.70, 0.80, 1.00);
 		lookfrom = point3(13, 2, 3);
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
@@ -204,35 +232,50 @@ int main()
 		break;
 	case 2:
 		world = two_spheres();
+		background = color(0.70, 0.80, 1.00);
 		lookfrom = point3(13, 2, 3);
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
+	//default:
 	case 3:
 		world = two_perlin_spheres();
+		background = color(0.70, 0.80, 1.00);
 		lookfrom = point3(13, 2, 3);
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-        default:
-        case 4:
-            world = earth();
-            lookfrom = point3(13,2,3);
-            lookat = point3(0,0,0);
-            vfov = 20.0;
-            break;
+	case 4:
+		world = earth();
+		background = color(0.70, 0.80, 1.00);
+		lookfrom = point3(13, 2, 3);
+		lookat = point3(0, 0, 0);
+		vfov = 20.0;
+		break;
+
+		case 5:
+		world = simple_light();
+		samples_per_pixel = 400;
+		background = color(0, 0, 0);
+		lookfrom = point3(26, 3, 6);
+		lookat = point3(0, 2, 0);
+		vfov = 20.0;
+		break;
+default:	
+	case 6:
+		world = cornell_box();
+		aspect_ratio = 1.0;
+		image_width = 400;
+		samples_per_pixel = 200;
+		background = color(0, 0, 0);
+		lookfrom = point3(278, 278, -800);
+		lookat = point3(278, 278, 0);
+		vfov = 40.0;
+		break;
 	}
 
-	auto aspect_ratio = 16.0 / 9.0;
-	int image_width = 400;
-	const int image_height = static_cast<int>(image_width / aspect_ratio);
-	int samples_per_pixel = 100;
-	const int max_depth = 50;
 	RGB* data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
 	int index = 0;
-	//auto world = random_scene();
-
-	// Camera
 
 	vec3 vup(0, 1, 0);
 	auto dist_to_focus = 10.0;
@@ -252,7 +295,7 @@ int main()
 				auto u = double(i + random_double()) / (image_width - 1);
 				auto v = double(j + random_double()) / (image_height - 1);
 				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, world, max_depth);
+				pixel_color += ray_color(r, background, world, max_depth);
 			}
 			auto temp = write_color(std::cout, pixel_color, samples_per_pixel);
 			data[index].R = temp.R;
