@@ -10,12 +10,16 @@
 #include "hittable_list.h"
 #include "camera.h"
 #include <iostream>
-
+#include <thread>
 #include "aarect.h"
 #include "box.h"
 #include "material.h"
 #include "memory.h"
 #include "moving_sphere.h"
+
+const auto num_threads = std::thread::hardware_concurrency() - 1;
+int index;
+RGB* data;
 
 double hit_sphere(const point3& center, double radius, const ray& r)
 {
@@ -215,6 +219,60 @@ void ClearScreen()
 	std::cout << "\033[2J\033[1;1H";
 }
 
+void colorCalc(int startValue, int endValue, int image_width, int samples_per_pixel, int max_depth, hittable_list world, color background, const int image_height, RGB*& data, camera cam, int total)
+{
+	//Max -> 0
+	for (int j = startValue; j >= endValue; --j)
+	{
+		//std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
+		ClearScreen();
+		loadingBar(total - (image_height- index), total);
+		for (int i = 0; i < image_width; ++i)
+		{
+			//RGB* temp = new RGB;
+			color pixel_color(0, 0, 0);
+			for (int s = 0; s < samples_per_pixel; ++s)
+			{
+				auto u = double(i + random_double()) / (image_width - 1);
+				auto v = double(j + random_double()) / (image_height - 1);
+				ray r = cam.get_ray(u, v);
+				pixel_color += ray_color(r, background, world, max_depth);
+			}
+			auto temp = write_color(std::cout, pixel_color, samples_per_pixel);
+			data[(j * image_width) + i].R = temp.R;
+			data[(j * image_width) + i].G = temp.G;
+			data[(j * image_width) + i].B = temp.B;
+		}
+		index++;
+	}
+}
+
+void threadRun(int image_width, int samples_per_pixel, int max_depth, hittable_list world, color background,
+               const int image_height, RGB* data, camera cam, int total)
+{
+	std::vector<std::thread> threads(num_threads);
+	//std::vector<int> in_count(num_threads);
+	//in_count.resize(num_threads);
+	int countTab = image_height/num_threads;
+	for (size_t i = 0; i < num_threads; ++i) 
+	{
+		//int total_iterations = total_count / num_threads;
+		//if (i == 0) {
+		//	total_iterations += total_count % num_threads;
+		//}
+
+		threads.emplace_back(colorCalc, countTab * (i+1), countTab * i,
+			image_width, samples_per_pixel, max_depth, 
+			world, background, image_height, std::ref(data), cam, total);
+	}
+
+	for (auto& thread : threads) {
+		if (thread.joinable()) {
+			thread.join();
+		}
+	}
+}
+
 int main()
 {
 	auto aspect_ratio = 16.0 / 9.0;
@@ -234,7 +292,8 @@ int main()
 
 	switch (0)
 	{
-	case 1:
+		default:
+		case 1:
 		world = random_scene();
 		background = color(0.70, 0.80, 1.00);
 		lookfrom = point3(13, 2, 3);
@@ -249,7 +308,6 @@ int main()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-		//default:
 	case 3:
 		world = two_perlin_spheres();
 		background = color(0.70, 0.80, 1.00);
@@ -273,7 +331,7 @@ int main()
 		lookat = point3(0, 2, 0);
 		vfov = 20.0;
 		break;
-	default:
+	
 	case 6:
 		world = cornell_box();
 		aspect_ratio = 1.0;
@@ -288,32 +346,10 @@ int main()
 	const vec3 vup(0, 1, 0);
 	const auto dist_to_focus = 10.0;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
-	RGB* data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
+	data = (RGB*)malloc(image_height * image_width * sizeof(RGB));
 	int index = 0;
 	camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0); int total = image_height - 1;
-	for (int j = image_height - 1; j >= 0; --j)
-	{
-		//std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
-		ClearScreen();
-		loadingBar(total - j, total);
-		for (int i = 0; i < image_width; ++i)
-		{
-			//RGB* temp = new RGB;
-			color pixel_color(0, 0, 0);
-			for (int s = 0; s < samples_per_pixel; ++s)
-			{
-				auto u = double(i + random_double()) / (image_width - 1);
-				auto v = double(j + random_double()) / (image_height - 1);
-				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, background, world, max_depth);
-			}
-			auto temp = write_color(std::cout, pixel_color, samples_per_pixel);
-			data[index].R = temp.R;
-			data[index].G = temp.G;
-			data[index].B = temp.B;
-			index++;
-		}
-	}
+	threadRun(image_width, samples_per_pixel, max_depth, world, background, image_height, data, cam, total);
 	stbi_write_jpg("raytrace_02.jpg", image_width, image_height, sizeof(RGB), data, 100);
 	std::cerr << "\nDone.\n";
 }
