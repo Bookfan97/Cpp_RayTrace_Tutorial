@@ -18,14 +18,26 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="External\IMGui\imgui.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGui\imgui_demo.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGui\imgui_draw.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGui\imgui_tables.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGui\imgui_widgets.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGui\imgui_impl_win32.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image_write.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vec3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,6 +91,33 @@
     </ClInclude>
     <ClInclude Include="constant_medium.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imgui.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\STB_Image\stb_image.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\STB_Image\stb_image_write.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imconfig.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imgui_internal.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imstb_rectpack.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imstb_textedit.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imstb_truetype.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGui\imgui_impl_win32.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

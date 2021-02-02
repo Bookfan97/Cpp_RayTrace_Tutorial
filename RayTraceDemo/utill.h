@@ -3,20 +3,20 @@
 #include <limits>
 #include <memory>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "External/STB_Image/stb_image_write.h"
 
 #ifdef _MSC_VER
-    // Microsoft Visual C++ Compiler
-    #pragma warning (push, 0)
+// Microsoft Visual C++ Compiler
+#pragma warning (push, 0)
 #endif
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "External/STB_Image/stb_image.h"
 
 // Restore warning levels.
 #ifdef _MSC_VER
-    // Microsoft Visual C++ Compiler
-    #pragma warning (pop)
+	// Microsoft Visual C++ Compiler
+#pragma warning (pop)
 #endif
 
 struct RGB
@@ -31,6 +31,9 @@ using std::make_shared;
 using std::sqrt;
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
+
+double closest_so_far = 0;
+
 inline double degrees_to_radians(double degrees)
 {
 	return degrees * pi / 180.0;
@@ -54,5 +57,5 @@ inline double clamp(double x, double min, double max)
 
 inline int random_int(int min, int max)
 {
-    return static_cast<int>(random_double(min, max+1));
+	return static_cast<int>(random_double(min, max + 1));
 }

@@ -139,6 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="External\IMGui\imgui.cpp" />
+    <ClCompile Include="External\IMGui\imgui_demo.cpp" />
+    <ClCompile Include="External\IMGui\imgui_draw.cpp" />
+    <ClCompile Include="External\IMGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="External\IMGui\imgui_tables.cpp" />
+    <ClCompile Include="External\IMGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +155,15 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="constant_medium.h" />
+    <ClInclude Include="External\IMGui\imconfig.h" />
+    <ClInclude Include="External\IMGui\imgui.h" />
+    <ClInclude Include="External\IMGui\imgui_impl_win32.h" />
+    <ClInclude Include="External\IMGui\imgui_internal.h" />
+    <ClInclude Include="External\IMGui\imstb_rectpack.h" />
+    <ClInclude Include="External\IMGui\imstb_textedit.h" />
+    <ClInclude Include="External\IMGui\imstb_truetype.h" />
+    <ClInclude Include="External\STB_Image\stb_image.h" />
+    <ClInclude Include="External\STB_Image\stb_image_write.h" />
     <ClInclude Include="hittable.h" />
     <ClInclude Include="hittable_list.h" />
     <ClInclude Include="material.h" />
@@ -157,8 +172,6 @@
     <ClInclude Include="ray.h" />
     <ClInclude Include="rtw_stb_image.h" />
     <ClInclude Include="sphere.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="utill.h" />
     <ClInclude Include="vec3.h" />
