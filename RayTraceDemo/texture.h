@@ -89,7 +89,7 @@ public:
 	}
 
 	~image_texture() {
-		delete data;
+		STBI_FREE(data);
 	}
 
 	virtual color value(double u, double v, const vec3& p) const override {
