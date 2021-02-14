@@ -119,5 +119,8 @@
     <ClInclude Include="External\IMGui\imgui_impl_win32.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="External\GLFW\include\GLFW\glfw3.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

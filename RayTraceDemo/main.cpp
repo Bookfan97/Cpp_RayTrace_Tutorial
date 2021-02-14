@@ -18,6 +18,7 @@
 #include "material.h"
 #include "memory.h"
 #include "moving_sphere.h"
+#include "External/GLFW/include/GLFW/glfw3.h"
 
 #include "External/IMGui/imgui.h"
 #include "External/IMGui/imgui_impl_win32.h"
@@ -300,6 +301,47 @@ void ClearScreen()
 	std::cout << "\033[2J\033[1;1H";
 }
 
+GLint GL_CLAMP_TO_EDGE;
+
+GLuint* out_texture;
+
+int* out_width;
+
+int* out_height;
+
+bool LoadTextureFromFile(const char* filename, GLuint* my_image_texture, int* my_image_width, int* my_image_height)
+{
+	// Load from file
+	int image_width = 0;
+	int image_height = 0;
+	unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
+	if (image_data == NULL)
+		return false;
+
+	// Create a OpenGL texture identifier
+	GLuint image_texture;
+	glGenTextures(1, &image_texture);
+	glBindTexture(GL_TEXTURE_2D, image_texture);
+
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+	// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+	stbi_image_free(image_data);
+
+	*out_texture = image_texture;
+	*out_width = image_width;
+	*out_height = image_height;
+
+	return true;
+}
 int main()
 {
 	/*IMGUI_CHECKVERSION();
@@ -350,7 +392,7 @@ int main()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-
+		default:
 	case 4:
 		world = earth();
 		background = color(0.70, 0.80, 1.00);
@@ -386,7 +428,7 @@ int main()
 		lookat = point3(278, 278, 0);
 		vfov = 40.0;
 		break;
-	default:
+	//default:
 	case 8:
 		world = final_scene();
 		aspect_ratio = 1.0;
@@ -429,5 +471,17 @@ int main()
 		}
 	}
 	stbi_write_jpg("raytrace_02.jpg", image_width, image_height, sizeof(RGB), data, 100);
+
+	int my_image_width = 0;
+	int my_image_height = 0;
+	GLuint my_image_texture = 0;
+	bool ret = LoadTextureFromFile("raytrace_02.jpg", &my_image_texture, &image_width, &my_image_height);
+	IM_ASSERT(ret);
+		ImGui::Begin("OpenGL Texture Text");
+	ImGui::Text("pointer = %p", my_image_texture);
+	ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+	ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+	ImGui::End();
+
 	std::cerr << "\nDone.\n";
 }
