@@ -157,7 +157,10 @@
     <ClCompile Include="External\IMGui\imgui_impl_win32.cpp" />
     <ClCompile Include="External\IMGui\imgui_tables.cpp" />
     <ClCompile Include="External\IMGui\imgui_widgets.cpp" />
+    <ClCompile Include="integrate_x_sq.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pi.cpp" />
+    <ClCompile Include="sphere_importance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
@@ -179,12 +182,15 @@
     <ClInclude Include="External\STB_Image\stb_image_write.h" />
     <ClInclude Include="hittable.h" />
     <ClInclude Include="hittable_list.h" />
+    <ClInclude Include="integrate_x_sq.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="moving_sphere.h" />
     <ClInclude Include="perlin.h" />
+    <ClInclude Include="pi.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rtw_stb_image.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="sphere_importance.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="utill.h" />
     <ClInclude Include="vec3.h" />

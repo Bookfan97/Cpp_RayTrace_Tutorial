@@ -36,6 +36,15 @@
     <ClCompile Include="External\IMGui\imgui_impl_win32.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="pi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="integrate_x_sq.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere_importance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vec3.h">
@@ -121,6 +130,15 @@
     </ClInclude>
     <ClInclude Include="External\GLFW\include\GLFW\glfw3.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="integrate_x_sq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere_importance.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
