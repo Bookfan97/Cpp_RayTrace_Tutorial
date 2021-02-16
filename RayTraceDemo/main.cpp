@@ -19,7 +19,7 @@
 #include "memory.h"
 #include "moving_sphere.h"
 #include "External/GLFW/include/GLFW/glfw3.h"
-
+#include <chrono>
 #include "External/IMGui/imgui.h"
 #include "External/IMGui/imgui_impl_win32.h"
 
@@ -263,8 +263,34 @@ hittable_list final_scene() {
 	return objects;
 }
 
+void CalcTimeRemaining(int current, int mult, long long count)
+{
+	int hours, minutes, seconds;
+	int timeLeft = (int)(mult - current) * ((int)count / current);
+	seconds = timeLeft;
+	if (timeLeft < 60)
+	{
+		printf("<1 min.");//, timeLeft);
+		//printf("%i sec.", timeLeft);
+	}
+	else if (timeLeft < 60 * 60)
+	{
+		minutes = seconds / 60;
+		seconds = timeLeft - (minutes * 60);
+		printf("%i min. %i sec.", minutes, seconds);
+	}
+	else
+	{
+		minutes = seconds / 60;
+		hours = minutes / 60;
+		seconds = timeLeft - (minutes * 60);
+		printf("%i hr. %i min. %i sec.", hours, minutes, seconds);
+	}
+	//printf("%4.4f sec", timeLeft);
+}
+
 //Adapted from https://www.geeksforgeeks.org/how-to-create-a-command-line-progress-bar-in-c-c/
-void loadingBar(int current, int mult)
+void loadingBar(int current, int mult, long long count)
 {
 	auto temp = (float)current / (float)mult;
 	//system("color 0A");
@@ -287,10 +313,18 @@ void loadingBar(int current, int mult)
 	{
 		printf("%c", b);
 	}
+	printf("\n");
+	printf("\t\t\t\t\t");
+	printf("\n");
+	printf("\t\t\t\t\t");
+	printf("%4.4f %%", temp * 100);
 	printf("\n\n");
 	printf("\t\t\t\t\t");
-
-	printf("%4.4f %%", temp * 100);
+	if (current == 0)
+	{
+		current = 1;
+	}
+	CalcTimeRemaining(current, mult, count);
 }
 
 //Clears screens with commands for Windows, Linux, macOS
@@ -309,39 +343,40 @@ int* out_width;
 
 int* out_height;
 
-bool LoadTextureFromFile(const char* filename, GLuint* my_image_texture, int* my_image_width, int* my_image_height)
-{
-	// Load from file
-	int image_width = 0;
-	int image_height = 0;
-	unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
-	if (image_data == NULL)
-		return false;
+//bool LoadTextureFromFile(const char* filename, GLuint* my_image_texture, int* my_image_width, int* my_image_height)
+//{
+//	// Load from file
+//	int image_width = 0;
+//	int image_height = 0;
+//	unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
+//	if (image_data == NULL)
+//		return false;
+//
+//	// Create a OpenGL texture identifier
+//	GLuint image_texture;
+//	glGenTextures(1, &image_texture);
+//	glBindTexture(GL_TEXTURE_2D, image_texture);
+//
+//	// Setup filtering parameters for display
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+//
+//	// Upload pixels into texture
+//#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+//	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+//#endif
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+//	stbi_image_free(image_data);
+//
+//	*out_texture = image_texture;
+//	*out_width = image_width;
+//	*out_height = image_height;
+//
+//	return true;
+//}
 
-	// Create a OpenGL texture identifier
-	GLuint image_texture;
-	glGenTextures(1, &image_texture);
-	glBindTexture(GL_TEXTURE_2D, image_texture);
-
-	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-
-	// Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-	stbi_image_free(image_data);
-
-	*out_texture = image_texture;
-	*out_width = image_width;
-	*out_height = image_height;
-
-	return true;
-}
 int main()
 {
 	/*IMGUI_CHECKVERSION();
@@ -392,8 +427,7 @@ int main()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-		default:
-	case 4:
+	default:	case 4:
 		world = earth();
 		background = color(0.70, 0.80, 1.00);
 		lookfrom = point3(13, 2, 3);
@@ -409,6 +443,7 @@ int main()
 		lookat = point3(0, 2, 0);
 		vfov = 20.0;
 		break;
+
 	case 6:
 		world = cornell_box();
 		aspect_ratio = 1.0;
@@ -428,7 +463,6 @@ int main()
 		lookat = point3(278, 278, 0);
 		vfov = 40.0;
 		break;
-	//default:
 	case 8:
 		world = final_scene();
 		aspect_ratio = 1.0;
@@ -440,6 +474,7 @@ int main()
 		vfov = 40.0;
 		break;
 	}
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	const vec3 vup(0, 1, 0);
 	const auto dist_to_focus = 10.0;
 	const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -451,7 +486,8 @@ int main()
 	{
 		//std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
 		ClearScreen();
-		loadingBar(total - j, total);
+		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+		loadingBar(total - j, total, std::chrono::duration_cast<std::chrono::seconds>(now - begin).count());
 		for (int i = 0; i < image_width; ++i)
 		{
 			//RGB* temp = new RGB;
@@ -472,7 +508,7 @@ int main()
 	}
 	stbi_write_jpg("raytrace_02.jpg", image_width, image_height, sizeof(RGB), data, 100);
 
-	int my_image_width = 0;
+	/*int my_image_width = 0;
 	int my_image_height = 0;
 	GLuint my_image_texture = 0;
 	bool ret = LoadTextureFromFile("raytrace_02.jpg", &my_image_texture, &image_width, &my_image_height);
@@ -481,7 +517,28 @@ int main()
 	ImGui::Text("pointer = %p", my_image_texture);
 	ImGui::Text("size = %d x %d", my_image_width, my_image_height);
 	ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-	ImGui::End();
-
+	ImGui::End();*/
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	int totalTime = (int)std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
 	std::cerr << "\nDone.\n";
+	std::cerr << "\nTotal Time:\n";
+	int hours, minutes, seconds;
+	seconds = totalTime;
+	if (totalTime < 60)
+	{
+		printf("%i sec.", totalTime);
+	}
+	else if (totalTime < 60 * 60)
+	{
+		minutes = seconds / 60;
+		seconds = totalTime - (minutes * 60);
+		printf("%i min. %i sec.", minutes, seconds);
+	}
+	else
+	{
+		minutes = seconds / 60;
+		hours = minutes / 60;
+		seconds = totalTime - (minutes * 60);
+		printf("%i hr. %i min. %i sec.", hours, minutes, seconds);
+	}
 }
