@@ -54,11 +54,15 @@ color ray_color(const ray& r, const color& background, const hittable& world, in
 	ray scattered;
 	color attenuation;
 	color emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
+	double pdf;
+	color albedo;
 
-	if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+	if (!rec.mat_ptr->scatter(r, rec, albedo, scattered, pdf))
 		return emitted;
 
-	return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
+	return emitted
+		+ albedo * rec.mat_ptr->scattering_pdf(r, rec, scattered)
+		* ray_color(scattered, background, world, depth - 1) / pdf;
 }
 
 hittable_list random_scene() {
@@ -166,20 +170,18 @@ hittable_list cornell_box()
 	objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
 	objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
 	objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
-	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
 	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
 	objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
-	objects.add(make_shared<box>(point3(130, 0, 65), point3(295, 165, 230), white));
-	objects.add(make_shared<box>(point3(265, 0, 295), point3(430, 330, 460), white));
 	shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
 	box1 = make_shared<rotate_y>(box1, 15);
 	box1 = make_shared<translate>(box1, vec3(265, 0, 295));
 	objects.add(box1);
-
 	shared_ptr<hittable> box2 = make_shared<box>(point3(0, 0, 0), point3(165, 165, 165), white);
 	box2 = make_shared<rotate_y>(box2, -18);
 	box2 = make_shared<translate>(box2, vec3(130, 0, 65));
 	objects.add(box2);
+
 	return objects;
 }
 
@@ -427,7 +429,7 @@ int main()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-	default:	case 4:
+	case 4:
 		world = earth();
 		background = color(0.70, 0.80, 1.00);
 		lookfrom = point3(13, 2, 3);
@@ -443,11 +445,11 @@ int main()
 		lookat = point3(0, 2, 0);
 		vfov = 20.0;
 		break;
-
+	default:
 	case 6:
 		world = cornell_box();
 		aspect_ratio = 1.0;
-		image_width = 400;
+		image_width = 600;
 		samples_per_pixel = 200;
 		background = color(0, 0, 0);
 		lookfrom = point3(278, 278, -800);
