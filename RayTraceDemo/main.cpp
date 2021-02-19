@@ -385,14 +385,14 @@ int* out_height;
 //	return true;
 //}
 
-void colorCalc(int startValue, int endValue, int image_width, int samples_per_pixel, int max_depth, hittable_list world, color background, std::chrono::steady_clock::time_point begin, const int image_height, int index, camera cam, int total)
+void colorCalc(int startValue, int endValue, int image_width, int samples_per_pixel, int max_depth, hittable_list world, color background, std::chrono::steady_clock::time_point begin, const int image_height, camera cam, int total)
 {
 	for (int j = startValue; j >= endValue; --j)
 	{
 		//std::cerr << "\rScanlines remaining: " << j << ' ' << '\n' << std::flush;
 		ClearScreen();
 		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-		loadingBar(total - (image_height - index), total, std::chrono::duration_cast<std::chrono::seconds>(now - begin).count());
+		loadingBar(index, total, std::chrono::duration_cast<std::chrono::seconds>(now - begin).count());
 		for (int i = 0; i < image_width; ++i)
 		{
 			//RGB* temp = new RGB;
@@ -405,12 +405,19 @@ void colorCalc(int startValue, int endValue, int image_width, int samples_per_pi
 				pixel_color += ray_color(r, background, world, max_depth);
 			}
 			auto temp = write_color(std::cout, pixel_color, samples_per_pixel);
-			auto dataIndex =(j * image_width) + i;
-			data[dataIndex].R = temp.R;
-			data[dataIndex].G = temp.G;
-			data[dataIndex].B = temp.B;
+			auto dataIndex = (j * image_width) + i;
+			if (dataIndex < image_width * image_height)
+			{
+				data[dataIndex].R = temp.R;
+				data[dataIndex].G = temp.G;
+				data[dataIndex].B = temp.B;
+			}
 		}
-		index++;
+
+		if (index <= total)
+		{
+			index++;
+		}
 	}
 }
 
@@ -423,7 +430,7 @@ void threadRun(int image_width, int samples_per_pixel, int max_depth, hittable_l
 		threads.emplace_back(
 			colorCalc, countTab * (i + 1), countTab * i, image_width,
 			samples_per_pixel, max_depth, world, background, begin,
-			image_height, index, cam, total);
+			image_height, cam, total);
 	}
 
 	for (auto& thread : threads) {
@@ -504,7 +511,7 @@ int main()
 	case 6:
 		world = cornell_box();
 		aspect_ratio = 1.0;
-		image_width = 500;
+		image_width = 600;
 		samples_per_pixel = 200;
 		background = color(0, 0, 0);
 		lookfrom = point3(278, 278, -800);
