@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cos_cubed.cpp" />
     <ClCompile Include="External\IMGui\imgui.cpp" />
     <ClCompile Include="External\IMGui\imgui_demo.cpp" />
     <ClCompile Include="External\IMGui\imgui_draw.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pi.cpp" />
     <ClCompile Include="sphere_importance.cpp" />
+    <ClCompile Include="sphere_plot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
@@ -170,6 +172,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="constant_medium.h" />
+    <ClInclude Include="cos_density.h" />
     <ClInclude Include="External\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="External\IMGui\imconfig.h" />
     <ClInclude Include="External\IMGui\imgui.h" />
@@ -185,6 +188,7 @@
     <ClInclude Include="integrate_x_sq.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="moving_sphere.h" />
+    <ClInclude Include="onb.h" />
     <ClInclude Include="perlin.h" />
     <ClInclude Include="pi.h" />
     <ClInclude Include="ray.h" />

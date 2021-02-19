@@ -45,6 +45,12 @@
     <ClCompile Include="sphere_importance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sphere_plot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cos_cubed.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vec3.h">
@@ -138,6 +144,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sphere_importance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="onb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cos_density.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
