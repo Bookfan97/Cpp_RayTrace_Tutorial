@@ -149,9 +149,6 @@
     <ClInclude Include="onb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cos_density.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="pdf.h">
       <Filter>Header Files</Filter>
     </ClInclude>

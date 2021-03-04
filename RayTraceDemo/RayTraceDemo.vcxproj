@@ -172,7 +172,6 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="constant_medium.h" />
-    <ClInclude Include="cos_density.h" />
     <ClInclude Include="External\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="External\IMGui\imconfig.h" />
     <ClInclude Include="External\IMGui\imgui.h" />
