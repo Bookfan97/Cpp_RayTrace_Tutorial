@@ -21,7 +21,6 @@
 #include "material.h"
 #include "memory.h"
 #include "moving_sphere.h"
-#include "External/GLFW/include/GLFW/glfw3.h"
 #include <chrono>
 #include <thread>
 
@@ -363,9 +362,9 @@ void ClearScreen()
 	std::cout << "\033[2J\033[1;1H";
 }
 
-GLint GL_CLAMP_TO_EDGE;
-
-GLuint* out_texture;
+//GLint GL_CLAMP_TO_EDGE;
+//
+//GLuint* out_texture;
 
 int* out_width;
 
@@ -492,7 +491,6 @@ int main()
 	auto aperture = 0.0;
 	color background(0, 0, 0);
 
-	
 	switch (0)
 	{
 	case 1:
