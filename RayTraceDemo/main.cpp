@@ -308,9 +308,9 @@ void CalcTimeRemaining(int current, int mult, long long count)
 	}
 	else
 	{
-		minutes = seconds / 60;
-		hours = (minutes / 60) - minutes;
-		seconds = timeLeft - (minutes * 60);
+		hours = (timeLeft / 60) / 60;
+		minutes = timeLeft - hours/60;
+		seconds = timeLeft - (hours*60) - (minutes * 60);
 		printf("%i hr. %i min. %i sec.", hours, minutes, seconds);
 	}
 	//printf("%4.4f sec", timeLeft);
@@ -466,7 +466,7 @@ void threadRun(int image_width, int samples_per_pixel, int max_depth, hittable_l
 	}
 }
 
-int main()
+void do_work(int i)
 {
 	/*IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -491,7 +491,7 @@ int main()
 	auto aperture = 0.0;
 	color background(0, 0, 0);
 
-	switch (0)
+	switch (i)
 	{
 	case 1:
 		world = random_scene();
@@ -523,7 +523,6 @@ int main()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
-
 	case 5:
 		world = simple_light();
 		samples_per_pixel = 400;
@@ -532,7 +531,6 @@ int main()
 		lookat = point3(0, 2, 0);
 		vfov = 20.0;
 		break;
-	default:
 	case 6:
 		world = cornell_box();
 		aspect_ratio = 1.0;
@@ -591,7 +589,9 @@ int main()
 	int total = image_height - 1;
 	threadRun(image_width, samples_per_pixel, max_depth, world, background, begin, image_height, data, index, cam, total, lights);
 	stbi_flip_vertically_on_write(true);
-	stbi_write_jpg("raytrace_02.jpg", image_width, image_height, sizeof(RGB), data, 100);
+	std::string file = "raytrace_0"+std::to_string(i);
+	file += ".jpg";
+	stbi_write_jpg(file.c_str(), image_width, image_height, sizeof(RGB), data, 100);
 
 	/*int my_image_width = 0;
 	int my_image_height = 0;
@@ -625,5 +625,13 @@ int main()
 		hours = minutes / 60;
 		seconds = totalTime - (minutes * 60);
 		printf("%i hr. %i min. %i sec.", hours, minutes, seconds);
+	}
+}
+
+int main()
+{
+	for (int i = 0; i < 9; ++i)
+	{
+		do_work(i);
 	}
 }
