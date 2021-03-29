@@ -28,7 +28,7 @@
 #include "External/IMGui/imgui.h"
 #include "External/IMGui/imgui_impl_win32.h"
 
-const auto num_threads = std::thread::hardware_concurrency() - 1;
+const auto num_threads = std::thread::hardware_concurrency() - 2;
 int index;
 RGB* data;
 
@@ -308,9 +308,9 @@ void CalcTimeRemaining(int current, int mult, long long count)
 	}
 	else
 	{
-		hours = (timeLeft / 60) / 60;
-		minutes = timeLeft - hours/60;
-		seconds = timeLeft - (hours*60) - (minutes * 60);
+		hours = timeLeft / 3600;
+		minutes = (timeLeft % 3600) / 60;
+		seconds = (timeLeft % 3600) % 60;
 		printf("%i hr. %i min. %i sec.", hours, minutes, seconds);
 	}
 	//printf("%4.4f sec", timeLeft);
@@ -554,7 +554,7 @@ void do_work(int i)
 		world = final_scene();
 		aspect_ratio = 1.0;
 		image_width = 800;
-		samples_per_pixel = 10000;
+		samples_per_pixel = 1000;
 		background = color(0, 0, 0);
 		lookfrom = point3(478, 278, -600);
 		lookat = point3(278, 278, 0);
@@ -589,7 +589,7 @@ void do_work(int i)
 	int total = image_height - 1;
 	threadRun(image_width, samples_per_pixel, max_depth, world, background, begin, image_height, data, index, cam, total, lights);
 	stbi_flip_vertically_on_write(true);
-	std::string file = "raytrace_0"+std::to_string(i);
+	std::string file = "raytrace_0" + std::to_string(i);
 	file += ".jpg";
 	stbi_write_jpg(file.c_str(), image_width, image_height, sizeof(RGB), data, 100);
 
@@ -621,17 +621,17 @@ void do_work(int i)
 	}
 	else
 	{
-		minutes = seconds / 60;
-		hours = minutes / 60;
-		seconds = totalTime - (minutes * 60);
+		hours = totalTime / 3600;
+		minutes = (totalTime % 3600) / 60;
+		seconds = (totalTime % 3600) % 60;
 		printf("%i hr. %i min. %i sec.", hours, minutes, seconds);
 	}
 }
 
 int main()
 {
-	for (int i = 0; i < 9; ++i)
-	{
-		do_work(i);
-	}
+	//for (int i = 0; i < 9; ++i)
+	//{
+	do_work(8);
+	//}
 }
